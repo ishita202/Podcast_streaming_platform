@@ -1,0 +1,53 @@
+# ===== DJANGO & PYTHON =====
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.log
+
+# SQLite Database
+db.sqlite3
+
+# Secret env files
+.env
+*.env
+
+# Django media files
+media/
+media/**
+
+# Django static (if generated)
+staticfiles/
+static/
+
+# ===== MIGRATIONS =====
+**/migrations/
+!**/migrations/__init__.py
+
+# ===== EDITOR / IDE FILES =====
+.vscode/
+.idea/
+
+# ===== OS FILES =====
+.DS_Store
+Thumbs.db
+
+# ===== FRONTEND (Node files) =====
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# ===== ENVIRONMENTS =====
+env/
+venv/
+ENV/
+venv.bak/
+
+# ===== CACHE =====
+*.egg-info/
+.eggs/
+*.egg
+build/
+dist/
+pip-wheel-metadata/
