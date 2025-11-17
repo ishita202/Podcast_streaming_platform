@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Podcast Grid</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-weight: 700;
+            color: #212529;
+        }
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        .search-bar {
+            position: relative;
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .search-bar:focus-within {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .search-input {
+            border: 1px solid #e9ecef;
+            border-radius: 50px;
+            padding: 15px 20px;
+            padding-left: 50px;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #6c757d;
+            box-shadow: none;
+        }
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: linear-gradient(to right, #FF6B6B, #FF8E53);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .search-btn:hover {
+            background: linear-gradient(to right, #FF5252, #FF7043);
+        }
+        .search-btn:active {
+            transform: translateY(-50%) scale(0.97);
+        }
+        hr.divider {
+            margin: 20px 0 30px;
+            opacity: 0.1;
+        }
+        .podcast-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #fff;
+            border: none;
+        }
+        .podcast-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .podcast-thumbnail {
+            position: relative;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .podcast-thumbnail img, .podcast-thumbnail i {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .podcast-icon {
+            color: #6c757d;
+            font-size: 3rem;
+        }
+        .play-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(33, 37, 41, 0.75);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        .podcast-info {
+            padding: 15px;
+        }
+        .podcast-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+        .podcast-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+        .podcast-desc {
+            font-size: 0.9rem;
+            color: #495057;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .no-results {
+            padding: 60px 0;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .no-results i {
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+        .no-results h4 {
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 10px;
+        }
+        .no-results p {
+            color: #6c757d;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        @media (max-width: 576px) {
+            .search-input {
+                padding: 12px 15px 12px 45px;
+                font-size: 0.9rem;
+            }
+            .search-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4 mb-5">
+    <!-- Header -->
+    <div class="header text-center">
+        <h1>Available Podcasts</h1>
+        <p class="text-muted">Discover and listen to your favorite podcasts</p>
+    </div>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+        <form method="GET" action="{% url 'podcasts:podcast_list' %}">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="search" class="search-input form-control" placeholder="Search podcasts by title..." value="{{ request.GET.search }}">
+                <button type="submit" class="search-btn">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <hr class="divider">
+    
+    <!-- Results Count (if search is active) -->
+    {% if request.GET.search %}
+    <div class="mb-4">
+        <a href="{% url 'podcasts:podcast_list' %}" class="text-decoration-none">
+            <i class="fas fa-arrow-left me-2"></i>Back to all podcasts
+        </a>
+        <p class="mt-2 mb-0">
+            {% with total=podcasts|length %}
+                {% if total == 0 %}
+                    No results found for "{{ request.GET.search }}"
+                {% elif total == 1 %}
+                    1 result found for "{{ request.GET.search }}"
+                {% else %}
+                    {{ total }} results found for "{{ request.GET.search }}"
+                {% endif %}
+            {% endwith %}
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- Podcast Grid -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for podcast in podcasts %}
+        <div class="col">
+            <a href="{% url 'podcasts:stream_podcast' podcast.id %}" class="text-decoration-none">
+                <div class="podcast-card shadow-sm">
+                    <div class="podcast-thumbnail">
+                        {% if podcast.thumbnail %}
+                            <img src="{{ podcast.thumbnail.url }}" alt="{{ podcast.title }}">
+                        {% elif podcast.image %}
+                            <img src="{{ podcast.image.url }}" alt="{{ podcast.title }}">
+                        {% elif podcast.cover %}
+                            <img src="{{ podcast.cover.url }}" alt="{{ podcast.title }}">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100 w-100 bg-light">
+                                <i class="fas fa-podcast podcast-icon"></i>
+                            </div>
+                        {% endif %}
+                        <button class="play-btn">
+                            <i class="fas fa-play me-1"></i> --:--
+                        </button>
+                    </div>
+                    <div class="podcast-info">
+                        <h3 class="podcast-title text-dark">{{ podcast.title }}</h3>
+                        <div class="podcast-date">{{ podcast.created_at|date:"M d, Y" }}</div>
+                        <p class="podcast-desc">{{ podcast.description }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="no-results">
+                <i class="fas fa-podcast fa-4x mb-3"></i>
+                {% if request.GET.search %}
+                    <h4>No podcasts found for "{{ request.GET.search }}"</h4>
+                    <p>Try searching with different keywords or check back later for new content.</p>
+                {% else %}
+                    <h4>No podcasts available</h4>
+                    <p>Check back later for new content or be the first to upload a podcast.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

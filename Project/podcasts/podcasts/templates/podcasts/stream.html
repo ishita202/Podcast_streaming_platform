@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ podcast.title }} - Podcast Platform</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff0000;
+            --primary-hover: #cc0000;
+            --light-bg: #f9f9f9;
+            --light-card: #ffffff;
+            --light-text: #0f0f0f;
+            --light-text-secondary: #606060;
+            --light-border: #e5e5e5;
+            
+            --dark-bg: #0f0f0f;
+            --dark-card: #212121;
+            --dark-text: #ffffff;
+            --dark-text-secondary: #aaaaaa;
+            --dark-border: #303030;
+        }
+        
+        /* Light Theme */
+        body.light-theme {
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+        
+        .light-theme .card {
+            background-color: var(--light-card);
+            border-color: var(--light-border);
+        }
+        
+        .light-theme .text-secondary {
+            color: var(--light-text-secondary) !important;
+        }
+        
+        /* Dark Theme */
+        body.dark-theme {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+        
+        .dark-theme .card {
+            background-color: var(--dark-card);
+            border-color: var(--dark-border);
+        }
+        
+        .dark-theme .text-secondary {
+            color: var(--dark-text-secondary) !important;
+        }
+        
+        .dark-theme .btn-outline-dark {
+            color: var(--dark-text);
+            border-color: var(--dark-border);
+        }
+        
+        .dark-theme .btn-outline-dark:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Common Styles */
+        .video-container {
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+        
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .video-stats {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid;
+            border-color: inherit;
+            margin-bottom: 15px;
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+        }
+        
+        .speed-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .speed-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: inherit;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+        }
+        
+        .speed-dropdown:hover .speed-dropdown-content {
+            display: block;
+        }
+        
+        .speed-btn {
+            width: 100%;
+            text-align: left;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        .speed-btn:hover {
+            background-color: rgba(128, 128, 128, 0.1);
+        }
+        
+        .active-speed {
+            font-weight: bold;
+            background-color: rgba(128, 128, 128, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .video-actions {
+                flex-wrap: wrap;
+                justify-content: space-around;
+            }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <!-- Theme Switch Button -->
+    <div class="theme-switch">
+        <button id="theme-toggle" class="btn btn-outline-primary rounded-circle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <!-- Video Player -->
+                <div class="video-container mb-3">
+                    <video id="podcast-player" controls autoplay class="w-100">
+                        <source src="{% url 'podcasts:stream_podcast' podcast.id %}?stream=true" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <!-- Video Info -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h1 class="fs-4 mb-2">{{ podcast.title }}</h1>
+                        
+                        <div class="video-stats">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; overflow: hidden;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div>{{ podcast.uploaded_by.username }}</div>
+                                    <div class="text-secondary small">
+                                        <i class="fas fa-calendar-alt me-1"></i>{{ podcast.uploaded_at|date:"F d, Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ms-auto video-actions">
+                                <div class="speed-dropdown">
+                                    <button class="action-btn" id="speed-display">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span class="small">Speed: 1x</span>
+                                    </button>
+                                    <div class="speed-dropdown-content card">
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(0.25)">0.25x</button>
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(0.5)">0.5x</button>
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(0.75)">0.75x</button>
+                                        <button class="speed-btn active-speed" onclick="changePlaybackSpeed(1.0)">1x (Normal)</button>
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(1.25)">1.25x</button>
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(1.5)">1.5x</button>
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(1.75)">1.75x</button>
+                                        <button class="speed-btn" onclick="changePlaybackSpeed(2.0)">2x</button>
+                                    </div>
+                                </div>
+                                
+                                <button class="action-btn" onclick="toggleFullScreen()">
+                                    <i class="fas fa-expand"></i>
+                                    <span class="small">Fullscreen</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mt-3">
+                            <h3 class="fs-5">Description</h3>
+                            <div class="text-secondary">
+                                {{ podcast.description|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Back to List Button -->
+                <div class="mb-4">
+                    <a href="{% url 'podcasts:podcast_list' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Podcasts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript for player controls and theme -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const player = document.getElementById('podcast-player');
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const themeIcon = themeToggle.querySelector('i');
+            const speedBtns = document.querySelectorAll('.speed-btn');
+            const speedDisplay = document.getElementById('speed-display');
+            
+            // Set default volume
+            player.volume = 0.7;
+            
+            // Check for saved theme preference or use preferred color scheme
+            const savedTheme = localStorage.getItem('theme') || 
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            
+            // Apply saved theme
+            setTheme(savedTheme);
+            
+            // Theme toggle handler
+            themeToggle.addEventListener('click', function() {
+                if (body.classList.contains('dark-theme')) {
+                    setTheme('light');
+                } else {
+                    setTheme('dark');
+                }
+            });
+            
+            // Function to set theme
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    body.classList.remove('light-theme');
+                    body.classList.add('dark-theme');
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    body.classList.remove('dark-theme');
+                    body.classList.add('light-theme');
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+            
+            // Update speed display when video playback rate changes
+            player.addEventListener('ratechange', function() {
+                speedDisplay.querySelector('span').textContent = `Speed: ${player.playbackRate}x`;
+                
+                // Update active speed button
+                speedBtns.forEach(btn => {
+                    btn.classList.remove('active-speed');
+                    if (parseFloat(btn.textContent) === player.playbackRate || 
+                        btn.textContent.includes(`${player.playbackRate}x`)) {
+                        btn.classList.add('active-speed');
+                    }
+                });
+            });
+        });
+        
+        // Change playback speed
+        function changePlaybackSpeed(speed) {
+            const player = document.getElementById('podcast-player');
+            player.playbackRate = speed;
+        }
+        
+        // Toggle fullscreen
+        function toggleFullScreen() {
+            const player = document.getElementById('podcast-player');
+            
+            if (!document.fullscreenElement) {
+                if (player.requestFullscreen) {
+                    player.requestFullscreen();
+                } else if (player.webkitRequestFullscreen) {
+                    player.webkitRequestFullscreen();
+                } else if (player.msRequestFullscreen) {
+                    player.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

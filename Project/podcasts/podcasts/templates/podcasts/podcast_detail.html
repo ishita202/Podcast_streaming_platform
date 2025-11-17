@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ podcast.title }}</h1>
+            <p class="text-muted">Uploaded by {{ podcast.uploaded_by.username }} on {{ podcast.uploaded_at|date:"F d, Y" }}</p>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Description</h3>
+                </div>
+                <div class="card-body">
+                    {{ podcast.description|linebreaks }}
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'podcasts:stream_podcast' podcast.id %}" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Watch Podcast
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
